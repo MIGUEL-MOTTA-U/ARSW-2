@@ -8,6 +8,7 @@ package primefinder;
 import java.sql.Time;
 import java.util.Scanner;
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -42,23 +43,36 @@ public class Control extends Thread {
 
     @Override
     public void run() {
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                execute();
+            }
+        };
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, 0, 5000);
+    }
+
+    void execute(){
         Scanner sc = new Scanner(System.in);
         for(int i = 0;i < NTHREADS;i++ ) {
             pft[i].start();
-           synchronized ( pft[i]){
-               while (pft[i].isAlive()){
-                   try {
-                       pft[i].wait();
-                       String input = sc.nextLine();
-                       System.out.println("The input is: " + input);
-                       pft[i].notify();
-                   } catch (InterruptedException e) {
-                       e.printStackTrace();
-                   }
-               }
-           }
+            synchronized ( pft[i]){
+                pause(pft[i], sc);
+            }
         }
         sc.close();
     }
-    
+    private void pause(PrimeFinderThread p, Scanner sc){
+        try {
+            p.wait();
+            String input = sc.nextLine();
+            System.out.println("The input is: " + input);
+            p.notify();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
