@@ -15,11 +15,12 @@ import java.util.TimerTask;
  */
 public class Control extends Thread {
     
-    private final static int NTHREADS = 3;
-    private final static int MAXVALUE = 30000000;
-    private final static int TMILISECONDS = 5000;
+    private final int NTHREADS = 3;
+    private final int MAXVALUE = 30000000;
+    private final int TMILISECONDS = 5000;
+    private final Object monitor = new Object();
 
-    private boolean paused = false;
+    private volatile boolean paused = false;
 
     private final int NDATA = MAXVALUE / NTHREADS;
 
@@ -31,47 +32,64 @@ public class Control extends Thread {
 
         int i;
         for(i = 0;i < NTHREADS - 1; i++) {
-            PrimeFinderThread elem = new PrimeFinderThread(i*NDATA, (i+1)*NDATA);
+            PrimeFinderThread elem = new PrimeFinderThread(i*NDATA, (i+1)*NDATA, monitor, this);
             pft[i] = elem;
         }
-        pft[i] = new PrimeFinderThread(i*NDATA, MAXVALUE + 1);
+        pft[i] = new PrimeFinderThread(i*NDATA, MAXVALUE + 1, monitor, this);
     }
     
     public static Control newControl() {
         return new Control();
     }
 
+    public boolean isPaused() {
+        return paused;
+    }
+
     @Override
     public void run() {
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                execute();
-            }
-        };
-
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, 0, 5000);
-    }
-
-    void execute(){
-        Scanner sc = new Scanner(System.in);
-        for(int i = 0;i < NTHREADS;i++ ) {
-            pft[i].start();
-            synchronized ( pft[i]){
-                pause(pft[i], sc);
+        Scanner scan = new Scanner(System.in);
+        execute();
+        while (threadsAlive()){
+            try{
+                Thread.sleep(TMILISECONDS);
+                pauseAll();
+                scan.nextLine();
+                resumeThreads();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-        sc.close();
+        scan.close();
     }
-    private void pause(PrimeFinderThread p, Scanner sc){
-        try {
-            p.wait();
-            String input = sc.nextLine();
-            System.out.println("The input is: " + input);
-            p.notify();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+
+    boolean threadsAlive(){
+        synchronized (monitor){
+            for(PrimeFinderThread p: pft){
+                if(p.isAlive()){
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    void execute(){
+        for(PrimeFinderThread p: pft){
+            p.start();
+        }
+    }
+
+    void resumeThreads(){
+        synchronized (monitor){
+            paused = false;
+            monitor.notifyAll();
+        }
+    }
+
+    void pauseAll(){
+        synchronized (monitor) {
+            paused = true;
         }
     }
 
