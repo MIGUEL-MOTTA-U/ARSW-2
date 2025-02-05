@@ -1,13 +1,11 @@
 package snakepackage;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.*;
 
 import javax.swing.*;
 
 import enums.GridSize;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,8 +51,8 @@ public class SnakeApp {
         frame.setLayout(new BorderLayout());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // frame.setSize(618, 640);
-        frame.setSize(GridSize.GRID_WIDTH * GridSize.WIDTH_BOX + 17,
-                GridSize.GRID_HEIGHT * GridSize.HEIGH_BOX + 40);
+        frame.setSize(GridSize.GRID_WIDTH * GridSize.WIDTH_BOX + 17 + 150,
+                GridSize.GRID_HEIGHT * GridSize.HEIGH_BOX + 40 + 10);
         frame.setLocation(dimension.width / 2 - frame.getWidth() / 2,
                 dimension.height / 2 - frame.getHeight() / 2);
         board = new Board();
@@ -64,7 +62,31 @@ public class SnakeApp {
         
         JPanel actionsBPabel=new JPanel();
         actionsBPabel.setLayout(new FlowLayout());
-        actionsBPabel.add(new JButton("Action "));
+
+        Button startButton = new Button("Start");
+        startButton.addActionListener(e -> {
+            for (int i = 0; i != MAX_THREADS; i++) {
+
+            }
+        });
+        actionsBPabel.add(startButton);
+
+        Button stopButton = new Button("Stop");
+        stopButton.addActionListener(e -> {
+            for (int i = 0; i != MAX_THREADS; i++) {
+
+            }
+        });
+        actionsBPabel.add(stopButton);
+
+        Button resetButton = new Button("Reset");
+        resetButton.addActionListener(e -> {
+            for (int i = 0; i != MAX_THREADS; i++) {
+
+            }
+        });
+        actionsBPabel.add(resetButton);
+
         frame.add(actionsBPabel,BorderLayout.SOUTH);
 
         // Crear panel para los letreros

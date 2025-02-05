@@ -36,7 +36,7 @@ public class Snake extends Observable implements Runnable {
         this.idt = idt;
         this.direction = direction;
         generateSnake(head);
-
+        this.latch = latch;
     }
 
     public boolean isSnakeEnd() {
@@ -67,12 +67,12 @@ public class Snake extends Observable implements Runnable {
                     sleep(500);
                 }
             } catch (InterruptedException e) {
+                latch.countDown();
                 e.printStackTrace();
             }
-
         }
-        latch.countDown();
         fixDirection(head);
+        latch.countDown();
         SnakeApp.getApp().updateWorstSnake(idt + " - Longitud: " + snakeBody.size());
     }
 
