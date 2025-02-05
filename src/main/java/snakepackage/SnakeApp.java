@@ -3,15 +3,13 @@ package snakepackage;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import enums.GridSize;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 
 /**
  * @author jd-
@@ -38,6 +36,11 @@ public class SnakeApp {
     int nr_selected = 0;
     Thread[] thread = new Thread[MAX_THREADS];
 
+    // Referencias a los JLabel
+    private JLabel worstSnakeLabel;
+    private boolean worstSnakeHasBeenSet = false;
+    private JLabel longestSnakeLabel;
+
     public SnakeApp() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         frame = new JFrame("The Snake Race");
@@ -57,6 +60,16 @@ public class SnakeApp {
         actionsBPabel.setLayout(new FlowLayout());
         actionsBPabel.add(new JButton("Action "));
         frame.add(actionsBPabel,BorderLayout.SOUTH);
+
+        // Crear panel para los letreros
+        // Crear panel para los letreros
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        worstSnakeLabel = new JLabel("La peor serpiente: ");
+        longestSnakeLabel = new JLabel("La serpiente viva más larga: ");
+        infoPanel.add(worstSnakeLabel);
+        infoPanel.add(longestSnakeLabel);
+        frame.add(infoPanel, BorderLayout.EAST);
 
     }
 
@@ -103,6 +116,25 @@ public class SnakeApp {
 
     public static SnakeApp getApp() {
         return app;
+    }
+
+    public void updateWorstSnake(String text, Snake snake) {
+        if (!worstSnakeHasBeenSet) {
+            worstSnakeHasBeenSet = true;
+            worstSnakeLabel.setText("La peor serpiente: " + text);
+        }
+    }
+
+    public void updateLongestSnake() {
+        Snake longestSnake = snakes[0];
+        for (int i = 0; i != MAX_THREADS; i++) {
+            if (snakes[i] != null) {
+                if (snakes[i].getBody().size() > longestSnake.getBody().size()) {
+                    longestSnake = snakes[i];
+                }
+            }
+        }
+        longestSnakeLabel.setText("La serpiente viva más larga: " + longestSnake.getIdt() + " " + longestSnake.getBody().size());
     }
 
 }

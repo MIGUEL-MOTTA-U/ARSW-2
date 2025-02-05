@@ -7,6 +7,8 @@ import java.util.Random;
 import enums.Direction;
 import enums.GridSize;
 
+import static java.lang.Thread.sleep;
+
 public class Snake extends Observable implements Runnable {
 
     private int idt;
@@ -57,9 +59,9 @@ public class Snake extends Observable implements Runnable {
 
             try {
                 if (hasTurbo == true) {
-                    Thread.sleep(500 / 3);
+                    sleep(500 / 3);
                 } else {
-                    Thread.sleep(500);
+                    sleep(500);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -68,8 +70,7 @@ public class Snake extends Observable implements Runnable {
         }
         
         fixDirection(head);
-        
-        
+        SnakeApp.getApp().updateWorstSnake(idt + " - Longitud: " + snakeBody.size(), this);
     }
 
     private void snakeCalc() {
@@ -195,7 +196,7 @@ public class Snake extends Observable implements Runnable {
 
             System.out.println("[" + idt + "] " + "EATING "
                     + newCell.toString());
-
+            SnakeApp.getApp().updateLongestSnake();
             for (int i = 0; i != Board.NR_FOOD; i++) {
                 if (Board.food[i].getX() == newCell.getX()
                         && Board.food[i].getY() == newCell.getY()) {
@@ -327,7 +328,7 @@ public class Snake extends Observable implements Runnable {
         this.objective = c;
     }*/
 
-    public LinkedList<Cell> getBody() {
+    public synchronized LinkedList<Cell> getBody() {
         return this.snakeBody;
     }
 

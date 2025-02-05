@@ -5,9 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Random;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
@@ -183,8 +181,9 @@ public class Board extends JLabel implements Observer {
 
 	private void drawSnake(Graphics g) {
 		for (int i = 0; i != SnakeApp.MAX_THREADS; i++) {
-			for (Cell p : SnakeApp.getApp().snakes[i].getBody()) {
-				if (p.equals(SnakeApp.getApp().snakes[i].getBody().peekFirst())) {
+            LinkedList<Cell> body = SnakeApp.getApp().snakes[i].getBody();
+			for (Cell p : body) {
+				if (p.equals(body.peekFirst())) {
 					g.setColor(new Color(050+(i*10), 205, 150));
 					g.fillRect(p.getX() * GridSize.WIDTH_BOX, p.getY()
 							* GridSize.HEIGH_BOX, GridSize.WIDTH_BOX,
