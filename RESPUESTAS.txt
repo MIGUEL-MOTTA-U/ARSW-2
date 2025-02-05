@@ -4,6 +4,7 @@
 - Dos o más serpientes dirigiendose a una celda "booster", ya que solo una de ellas debería de aumentar su velocidad.
 - Al momento de determinar si una celda está vacía u ocupada, de manera concurrente y sin sincronización, dos o más serpientes podrían considerar que la celda está vacía y moverse a ella.
   También, como los ratones se desaparecen al ser comidos pero vuelven y aparecen en otra parte del mapa, puede que un reatón no vuelva a  aparecer porque dos objetos accedieron a la celda y esta estaba vacia para ambos.
+- Acceso concurrente al estado del tablero actual, lo que puede generar sobrelapación u otros eventos inesperados.
 
 
 2. Uso inadecuado de colecciones, considerando su manejo concurrente (para esto, aumente la velocidad del juego y ejecútelo varias veces hasta que se genere un error).
@@ -12,3 +13,4 @@
 
 3. Uso innecesario de esperas activas.
 - El uso de sleep() puede llegar a dejar el hilo en espera infita, quedandose en un estado de TIME_WAITING, lo cual no es eficiente. Por otro lado, Thread.sleep() no garantiza precisión exacta en el tiempo.
+- El codigo que verifica si todas las serpientes han muerto, se encuentra en un ciclo while que se ejecuta hasta que todas las serpientes hayan muerto. Sin embargo, este ciclo no tiene un mecanismo de espera activa, por lo que el hilo se queda en un estado de espera activa, consumiendo recursos del sistema, quitando tiempo de procesador a otros hilos de manera innecesaria.

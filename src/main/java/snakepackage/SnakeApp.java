@@ -8,6 +8,7 @@ import javax.swing.*;
 import enums.GridSize;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +41,11 @@ public class SnakeApp {
     private JLabel worstSnakeLabel;
     private boolean worstSnakeHasBeenSet = false;
     private JLabel longestSnakeLabel;
+
+    // Referencias a los botones
+
+    private static CountDownLatch latch = new CountDownLatch(MAX_THREADS);
+
 
     public SnakeApp() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -84,7 +90,7 @@ public class SnakeApp {
         
         for (int i = 0; i != MAX_THREADS; i++) {
             
-            snakes[i] = new Snake(i + 1, spawn[i], i + 1);
+            snakes[i] = new Snake(i + 1, spawn[i], i + 1, latch);
             snakes[i].addObserver(board);
             thread[i] = new Thread(snakes[i]);
             thread[i].start();
@@ -92,19 +98,12 @@ public class SnakeApp {
 
         frame.setVisible(true);
 
-            
-        while (true) {
-            int x = 0;
-            for (int i = 0; i != MAX_THREADS; i++) {
-                if (snakes[i].isSnakeEnd() == true) {
-                    x++;
-                }
-            }
-            if (x == MAX_THREADS) {
-                break;
-            }
-        }
 
+        try {
+            latch.await(); // Espera a que todas las serpientes terminen
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         System.out.println("Thread (snake) status:");
         for (int i = 0; i != MAX_THREADS; i++) {
@@ -118,14 +117,14 @@ public class SnakeApp {
         return app;
     }
 
-    public void updateWorstSnake(String text, Snake snake) {
+    public synchronized void updateWorstSnake(String text) {
         if (!worstSnakeHasBeenSet) {
             worstSnakeHasBeenSet = true;
             worstSnakeLabel.setText("La peor serpiente: " + text);
         }
     }
 
-    public void updateLongestSnake() {
+    public synchronized void updateLongestSnake() {
         Snake longestSnake = snakes[0];
         for (int i = 0; i != MAX_THREADS; i++) {
             if (snakes[i] != null) {
