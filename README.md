@@ -1,7 +1,15 @@
 ### Escuela Colombiana de Ingeniería
 ## Arquitecturas de Software - ARSW
+### Santiago Avellaneda y Miguel Motta
 
+> [!IMPORTANT]  
+> La entrega se anexó como el archivo [`Solution`](Solution.md)
+
+
+---
 #### Laboratorio - Programación concurrente, condiciones de carrera, esquemas de sincronización, colecciones sincronizadas y concurrentes.
+
+
 
 Ejercicio inividual o en parejas.
 

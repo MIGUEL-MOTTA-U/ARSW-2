@@ -5,15 +5,14 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Random;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 
 import enums.GridSize;
 import java.io.InputStream;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Board extends JLabel implements Observer {
 
@@ -183,11 +182,12 @@ public class Board extends JLabel implements Observer {
 
 	private void drawSnake(Graphics g) {
 		for (int i = 0; i != SnakeApp.MAX_THREADS; i++) {
-			for (Cell p : SnakeApp.getApp().snakes[i].getBody()) {
-				if (p.equals(SnakeApp.getApp().snakes[i].getBody().peekFirst())) {
-					g.setColor(new Color(050+(i*10), 205, 150));
+			CopyOnWriteArrayList<Cell> body = SnakeApp.getApp().snakes[i].getBody();
+			for (Cell p : body) {
+				if (p.equals(body.get(0))) {
+					g.setColor(new Color(050 + (i * 10), 205, 150));
 					g.fillRect(p.getX() * GridSize.WIDTH_BOX, p.getY()
-							* GridSize.HEIGH_BOX, GridSize.WIDTH_BOX,
+									* GridSize.HEIGH_BOX, GridSize.WIDTH_BOX,
 							GridSize.HEIGH_BOX);
 				} else {
 					if (SnakeApp.getApp().snakes[i].isSelected()) {
@@ -195,12 +195,11 @@ public class Board extends JLabel implements Observer {
 					} else
 						g.setColor(new Color(034, 139, 034));
 					g.fillRect(p.getX() * GridSize.WIDTH_BOX, p.getY()
-							* GridSize.HEIGH_BOX, GridSize.WIDTH_BOX,
+									* GridSize.HEIGH_BOX, GridSize.WIDTH_BOX,
 							GridSize.HEIGH_BOX);
 				}
 			}
 		}
-
 	}
 
 	private void drawGrid(Graphics g) {
