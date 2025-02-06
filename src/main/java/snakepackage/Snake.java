@@ -179,7 +179,6 @@ public class Snake extends Observable implements Runnable {
                         Board.turbo_boosts[i] = new Cell(-5, -5);
                         hasTurbo = true;
                     }
-
                 }
                 System.out.println("[" + idt + "] " + "GETTING TURBO BOOST "
                         + newCell.toString());
@@ -197,7 +196,6 @@ public class Snake extends Observable implements Runnable {
                         Board.jump_pads[i] = new Cell(-5, -5);
                         this.jumps++;
                     }
-
                 }
                 System.out.println("[" + idt + "] " + "GETTING JUMP PAD "
                         + newCell.toString());
@@ -233,7 +231,6 @@ public class Snake extends Observable implements Runnable {
                 }
             }
         }
-
     }
 
     private Cell changeDirection(Cell newCell) {
