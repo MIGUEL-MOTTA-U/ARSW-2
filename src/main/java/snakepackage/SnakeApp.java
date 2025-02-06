@@ -139,14 +139,14 @@ public class SnakeApp {
         return app;
     }
 
-    public synchronized void updateWorstSnake(String text) {
+    public void updateWorstSnake(String text) {
         if (!worstSnakeHasBeenSet) {
             worstSnakeHasBeenSet = true;
             worstSnakeLabel.setText("La peor serpiente: " + text);
         }
     }
 
-    public synchronized void updateLongestSnake() {
+    public void updateLongestSnake() {
         Snake longestSnake = snakes[0];
         for (int i = 0; i != MAX_THREADS; i++) {
             if (snakes[i] != null) {

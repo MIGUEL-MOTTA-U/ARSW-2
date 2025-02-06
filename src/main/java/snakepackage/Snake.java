@@ -3,6 +3,7 @@ package snakepackage;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import enums.Direction;
@@ -15,7 +16,7 @@ public class Snake extends Observable implements Runnable {
     private int idt;
     private Cell head;
     private Cell newCell;
-    private LinkedList<Cell> snakeBody = new LinkedList<Cell>();
+    private CopyOnWriteArrayList<Cell> snakeBody = new CopyOnWriteArrayList<>();
     //private Cell objective = null;
     private Cell start = null;
 
@@ -77,7 +78,7 @@ public class Snake extends Observable implements Runnable {
     }
 
     private void snakeCalc() {
-        head = snakeBody.peekFirst();
+        head = snakeBody.get(0);
 
         newCell = head;
 
@@ -90,11 +91,11 @@ public class Snake extends Observable implements Runnable {
         checkIfTurboBoost(newCell);
         checkIfBarrier(newCell);
         
-        snakeBody.push(newCell);
+        snakeBody.add(0, newCell);
 
         if (growing <= 0) {
-            newCell = snakeBody.peekLast();
-            snakeBody.remove(snakeBody.peekLast());
+            newCell = snakeBody.get(snakeBody.size() - 1);
+            snakeBody.remove(snakeBody.get(snakeBody.size() - 1));
             Board.gameboard[newCell.getX()][newCell.getY()].freeCell();
         } else if (growing != 0) {
             growing--;
@@ -103,11 +104,13 @@ public class Snake extends Observable implements Runnable {
     }
 
     private void checkIfBarrier(Cell newCell) {
-        if (Board.gameboard[newCell.getX()][newCell.getY()].isBarrier()) {
-            // crash
-            System.out.println("[" + idt + "] " + "CRASHED AGAINST BARRIER "
-                    + newCell.toString());
-            snakeEnd=true;
+        synchronized (Board.gameboard) {
+            if (Board.gameboard[newCell.getX()][newCell.getY()].isBarrier()) {
+                // crash
+                System.out.println("[" + idt + "] " + "CRASHED AGAINST BARRIER "
+                        + newCell.toString());
+                snakeEnd = true;
+            }
         }
     }
 
@@ -156,7 +159,7 @@ public class Snake extends Observable implements Runnable {
     }
 
     private void checkIfTurboBoost(Cell newCell) {
-        synchronized (Board.gameboard) {
+        synchronized (Board.turbo_boosts) {
             if (Board.gameboard[newCell.getX()][newCell.getY()].isTurbo_boost()) {
                 // get turbo_boost
                 for (int i = 0; i != Board.NR_TURBO_BOOSTS; i++) {
@@ -174,7 +177,7 @@ public class Snake extends Observable implements Runnable {
     }
 
     private void checkIfJumpPad(Cell newCell) {
-        synchronized (Board.gameboard) {
+        synchronized (Board.jump_pads) {
             if (Board.gameboard[newCell.getX()][newCell.getY()].isJump_pad()) {
                 // get jump_pad
                 for (int i = 0; i != Board.NR_JUMP_PADS; i++) {
@@ -193,7 +196,7 @@ public class Snake extends Observable implements Runnable {
 
     private void checkIfFood(Cell newCell) {
         Random random = new Random();
-        synchronized (Board.gameboard) {
+        synchronized (Board.food) {
             if (Board.gameboard[newCell.getX()][newCell.getY()].isFood()) {
                 // eat food
                 growing += 3;
@@ -335,7 +338,7 @@ public class Snake extends Observable implements Runnable {
         this.objective = c;
     }*/
 
-    public synchronized LinkedList<Cell> getBody() {
+    public CopyOnWriteArrayList<Cell> getBody() {
         return this.snakeBody;
     }
 
