@@ -12,7 +12,7 @@ import enums.GridSize;
 import static java.lang.Thread.sleep;
 
 public class Snake extends Observable implements Runnable {
-
+    private final Object monitor;
     private int idt;
     private Cell head;
     private Cell newCell;
@@ -33,11 +33,12 @@ public class Snake extends Observable implements Runnable {
 
     private CountDownLatch latch;
 
-    public Snake(int idt, Cell head, int direction, CountDownLatch latch) {
+    public Snake(int idt, Cell head, int direction, CountDownLatch latch, Object monitor) {
         this.idt = idt;
         this.direction = direction;
         generateSnake(head);
         this.latch = latch;
+        this.monitor = monitor;
     }
 
     public boolean isSnakeEnd() {
@@ -54,7 +55,17 @@ public class Snake extends Observable implements Runnable {
     @Override
     public void run() {
         while (!snakeEnd) {
-            
+            while (SnakeApp.isPaused()){
+                synchronized (monitor){
+                    try{
+                        monitor.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             snakeCalc();
 
             //NOTIFY CHANGES TO GUI

@@ -31,6 +31,9 @@ public class SnakeApp {
         new Cell(3 * (GridSize.GRID_WIDTH / 2) / 2,
         GridSize.GRID_HEIGHT - 2)};
     private JFrame frame;
+    private static volatile boolean paused = false;
+    private final Object monitor = new Object();
+    private boolean started=false;
     private static Board board;
     int nr_selected = 0;
     Thread[] thread = new Thread[MAX_THREADS];
@@ -44,6 +47,29 @@ public class SnakeApp {
 
     private static CountDownLatch latch = new CountDownLatch(MAX_THREADS);
 
+    public static boolean isPaused(){
+        return paused;
+    }
+
+    void pauseAll(){
+        synchronized (monitor){
+            paused = true;
+        }
+    }
+
+    void resumeAll(){
+        synchronized (monitor){
+            paused=false;
+            monitor.notifyAll();
+        }
+    }
+
+    void startAll(){
+        for (Thread t : thread) {
+            t.start();
+        }
+        started=true;
+    }
 
     public SnakeApp() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -65,25 +91,19 @@ public class SnakeApp {
 
         Button startButton = new Button("Start");
         startButton.addActionListener(e -> {
-            for (int i = 0; i != MAX_THREADS; i++) {
-
-            }
+            if(!started) startAll();
         });
         actionsBPabel.add(startButton);
 
         Button stopButton = new Button("Stop");
         stopButton.addActionListener(e -> {
-            for (int i = 0; i != MAX_THREADS; i++) {
-
-            }
+            pauseAll();
         });
         actionsBPabel.add(stopButton);
 
-        Button resetButton = new Button("Reset");
+        Button resetButton = new Button("Resume");
         resetButton.addActionListener(e -> {
-            for (int i = 0; i != MAX_THREADS; i++) {
-
-            }
+            resumeAll();
         });
         actionsBPabel.add(resetButton);
 
@@ -112,10 +132,9 @@ public class SnakeApp {
         
         for (int i = 0; i != MAX_THREADS; i++) {
             
-            snakes[i] = new Snake(i + 1, spawn[i], i + 1, latch);
+            snakes[i] = new Snake(i + 1, spawn[i], i + 1, latch, monitor);
             snakes[i].addObserver(board);
             thread[i] = new Thread(snakes[i]);
-            thread[i].start();
         }
 
         frame.setVisible(true);
